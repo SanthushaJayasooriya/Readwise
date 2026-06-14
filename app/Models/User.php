@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -33,7 +32,15 @@ class User extends Authenticatable
 
     public function reviews()
     {
-        return $this->hasMany(\App\Models\Review::class);
+        return $this->hasMany(Review::class);
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(
+            Book::class,
+            'favorites'
+        );
     }
 
     public function isAdmin()

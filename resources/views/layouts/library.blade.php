@@ -34,6 +34,15 @@
                 </a>
 
                 @auth
+                    <a
+                        class="nav-link {{ request()->is('my-favorites') ? 'is-active' : '' }}"
+                        href="/my-favorites"
+                    >
+                        My Favorites
+                    </a>
+                @endauth
+
+                @auth
                     @if(auth()->user()->role === 'admin')
                         <a
                             class="button button--primary button--sm"

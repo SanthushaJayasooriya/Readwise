@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ModeratorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -35,7 +36,25 @@ Route::get('/books/{book}', [BookController::class, 'show']);
 
 Route::middleware('auth')->group(function () {
 
-    Route::post('/books/{book}/reviews', [ReviewController::class, 'store']);
+    Route::post(
+        '/books/{book}/reviews',
+        [ReviewController::class, 'store']
+    );
+
+    Route::post(
+        '/books/{book}/favorite',
+        [FavoriteController::class, 'store']
+    );
+
+    Route::delete(
+        '/books/{book}/favorite',
+        [FavoriteController::class, 'destroy']
+    );
+
+    Route::get(
+        '/my-favorites',
+        [FavoriteController::class, 'index']
+    );
 
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
@@ -79,6 +98,11 @@ Route::middleware(['auth', 'moderator'])->group(function () {
 
 Route::middleware(['auth', 'admin'])->group(function () {
 
+    Route::get(
+        '/dashboard',
+        [DashboardController::class, 'index']
+    )->name('dashboard');
+
     Route::get('/books/create', [BookController::class, 'create']);
     Route::post('/books', [BookController::class, 'store']);
 
@@ -101,16 +125,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
         [AdminController::class, 'removeModerator']
     );
 });
-
-/*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
-*/
-
-Route::get(
-    '/dashboard',
-    [DashboardController::class, 'index']
-)->middleware(['auth'])->name('dashboard');
 
 require __DIR__.'/auth.php';
