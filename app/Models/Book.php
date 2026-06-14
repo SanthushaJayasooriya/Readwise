@@ -26,4 +26,11 @@ class Book extends Model
             'favorites'
         );
     }
+
+    public function readingStatuses()
+    {
+        return $this->hasMany(
+            ReadingStatus::class
+        );
+    }
 }

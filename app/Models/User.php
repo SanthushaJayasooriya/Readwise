@@ -43,6 +43,13 @@ class User extends Authenticatable
         );
     }
 
+    public function readingStatuses()
+    {
+        return $this->hasMany(
+            ReadingStatus::class
+        );
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';

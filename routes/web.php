@@ -6,33 +6,16 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ModeratorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReadingStatusController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Home
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return redirect('/books');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Public Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book}', [BookController::class, 'show']);
-
-/*
-|--------------------------------------------------------------------------
-| User Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware('auth')->group(function () {
 
@@ -56,6 +39,16 @@ Route::middleware('auth')->group(function () {
         [FavoriteController::class, 'index']
     );
 
+    Route::post(
+        '/books/{book}/status',
+        [ReadingStatusController::class, 'store']
+    );
+
+    Route::get(
+        '/my-reading-list',
+        [ReadingStatusController::class, 'index']
+    );
+
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -65,12 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 });
-
-/*
-|--------------------------------------------------------------------------
-| Moderator Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware(['auth', 'moderator'])->group(function () {
 
@@ -89,12 +76,6 @@ Route::middleware(['auth', 'moderator'])->group(function () {
         [ModeratorController::class, 'reject']
     );
 });
-
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware(['auth', 'admin'])->group(function () {
 
