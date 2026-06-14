@@ -10,6 +10,17 @@ class ReviewController extends Controller
 {
     public function store(Request $request, Book $book)
     {
+        $existingReview = Review::where('book_id', $book->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($existingReview) {
+            return back()->with(
+                'error',
+                'You have already reviewed this book.'
+            );
+        }
+
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'review' => ['required', 'string'],

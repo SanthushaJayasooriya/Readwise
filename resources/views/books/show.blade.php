@@ -1,4 +1,3 @@
-```php
 @extends('layouts.library', ['title' => $book->title . ' | Readwise'])
 
 @section('content')
@@ -8,7 +7,10 @@
         </div>
 
         <div class="detail-panel">
-            <a class="back-link" href="/books">Back to Library</a>
+
+            <a class="back-link" href="/books">
+                Back to Library
+            </a>
 
             <span class="pill">
                 {{ $book->category ?: 'Uncategorized' }}
@@ -21,6 +23,7 @@
             </p>
 
             <div class="detail-meta">
+
                 @if(!empty($book->published_year))
                     <div>
                         <span>Published</span>
@@ -41,104 +44,208 @@
                         <strong>{{ $book->average_rating }}</strong>
                     </div>
                 @endif
+
             </div>
 
             <section class="description-block">
                 <h2>Description</h2>
-                <p>{{ $book->description ?: 'No description available.' }}</p>
+
+                <p>
+                    {{ $book->description ?: 'No description available.' }}
+                </p>
             </section>
 
+            {{-- Success Message --}}
             @if(session('success'))
-                <div style="background:#dcfce7;padding:12px;border-radius:10px;margin-bottom:20px;">
+                <div
+                    style="
+                        background:#dcfce7;
+                        padding:12px;
+                        border-radius:10px;
+                        margin-bottom:20px;
+                    "
+                >
                     {{ session('success') }}
                 </div>
             @endif
 
+            {{-- Error Message --}}
+            @if(session('error'))
+                <div
+                    style="
+                        background:#fee2e2;
+                        color:#991b1b;
+                        padding:12px;
+                        border-radius:10px;
+                        margin-bottom:20px;
+                    "
+                >
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <section class="description-block">
+
                 <h2>Reviews</h2>
 
                 @auth
-                    <form action="/books/{{ $book->id }}/reviews" method="POST">
+
+                    <form
+                        action="/books/{{ $book->id }}/reviews"
+                        method="POST"
+                    >
                         @csrf
 
                         <div style="margin-bottom:15px;">
-                            <label><strong>Rating</strong></label>
+                            <label>
+                                <strong>Rating</strong>
+                            </label>
 
                             <select
                                 name="rating"
                                 required
-                                style="width:100%;padding:10px;margin-top:5px;"
+                                style="
+                                    width:100%;
+                                    padding:10px;
+                                    margin-top:5px;
+                                "
                             >
-                                <option value="">Select Rating</option>
-                                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                <option value="4">⭐⭐⭐⭐ (4)</option>
-                                <option value="3">⭐⭐⭐ (3)</option>
-                                <option value="2">⭐⭐ (2)</option>
-                                <option value="1">⭐ (1)</option>
+                                <option value="">
+                                    Select Rating
+                                </option>
+
+                                <option value="5">
+                                    ⭐⭐⭐⭐⭐ (5)
+                                </option>
+
+                                <option value="4">
+                                    ⭐⭐⭐⭐ (4)
+                                </option>
+
+                                <option value="3">
+                                    ⭐⭐⭐ (3)
+                                </option>
+
+                                <option value="2">
+                                    ⭐⭐ (2)
+                                </option>
+
+                                <option value="1">
+                                    ⭐ (1)
+                                </option>
                             </select>
                         </div>
 
                         <div style="margin-bottom:15px;">
-                            <label><strong>Your Review</strong></label>
+
+                            <label>
+                                <strong>Your Review</strong>
+                            </label>
 
                             <textarea
                                 name="review"
                                 rows="4"
                                 required
-                                style="width:100%;padding:10px;"
+                                style="
+                                    width:100%;
+                                    padding:10px;
+                                "
                             ></textarea>
+
                         </div>
 
-                        <button class="button button--primary" type="submit">
+                        <button
+                            class="button button--primary"
+                            type="submit"
+                        >
                             Submit Review
                         </button>
+
                     </form>
+
                 @else
+
                     <p>
-                        Please <a href="/login">login</a> to submit a review.
+                        Please
+                        <a href="/login">login</a>
+                        to submit a review.
                     </p>
+
                 @endauth
 
                 <hr style="margin:25px 0;">
 
                 @forelse($reviews as $review)
-                    <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #ddd;">
-                        <strong>{{ $review->user->name }}</strong>
+
+                    <div
+                        style="
+                            margin-bottom:20px;
+                            padding-bottom:20px;
+                            border-bottom:1px solid #ddd;
+                        "
+                    >
+                        <strong>
+                            {{ $review->user->name }}
+                        </strong>
 
                         <div style="margin:8px 0;">
                             Rating: {{ $review->rating }}/5
                         </div>
 
-                        <p>{{ $review->review }}</p>
+                        <p>
+                            {{ $review->review }}
+                        </p>
 
                         <small>
                             {{ $review->created_at->diffForHumans() }}
                         </small>
                     </div>
+
                 @empty
-                    <p>No approved reviews yet.</p>
+
+                    <p>
+                        No approved reviews yet.
+                    </p>
+
                 @endforelse
+
             </section>
 
-            <div class="detail-actions">
-                <a class="button button--primary" href="/books/{{ $book->id }}/edit">
-                    Edit Book
-                </a>
+            {{-- ADMIN ONLY ACTIONS --}}
+            @auth
+                @if(auth()->user()->role === 'admin')
 
-                <form method="POST" action="/books/{{ $book->id }}">
-                    @csrf
-                    @method('DELETE')
+                    <div class="detail-actions">
 
-                    <button
-                        class="button button--danger"
-                        type="submit"
-                        onclick="return confirm('Delete this book?')"
-                    >
-                        Delete
-                    </button>
-                </form>
-            </div>
+                        <a
+                            class="button button--primary"
+                            href="/books/{{ $book->id }}/edit"
+                        >
+                            Edit Book
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="/books/{{ $book->id }}"
+                        >
+                            @csrf
+                            @method('DELETE')
+
+                            <button
+                                class="button button--danger"
+                                type="submit"
+                                onclick="return confirm('Delete this book?')"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                @endif
+            @endauth
+
         </div>
     </article>
 @endsection
-```

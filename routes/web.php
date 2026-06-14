@@ -1,34 +1,116 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ModeratorController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Home
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/books');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/books', [BookController::class, 'index']);
-Route::get('/books/create', [BookController::class, 'create']);
-Route::post('/books', [BookController::class, 'store']);
-
-Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])
-    ->middleware('auth');
-
-Route::get('/books/{book}/edit', [BookController::class, 'edit']);
-Route::put('/books/{book}', [BookController::class, 'update']);
-Route::delete('/books/{book}', [BookController::class, 'destroy']);
 Route::get('/books/{book}', [BookController::class, 'show']);
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+/*
+|--------------------------------------------------------------------------
+| User Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store']);
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Moderator Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'moderator'])->group(function () {
+
+    Route::get(
+        '/moderator/reviews',
+        [ModeratorController::class, 'pendingReviews']
+    );
+
+    Route::post(
+        '/moderator/reviews/{review}/approve',
+        [ModeratorController::class, 'approve']
+    );
+
+    Route::post(
+        '/moderator/reviews/{review}/reject',
+        [ModeratorController::class, 'reject']
+    );
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'admin'])->group(function () {
+
+    Route::get('/books/create', [BookController::class, 'create']);
+    Route::post('/books', [BookController::class, 'store']);
+
+    Route::get('/books/{book}/edit', [BookController::class, 'edit']);
+    Route::put('/books/{book}', [BookController::class, 'update']);
+    Route::delete('/books/{book}', [BookController::class, 'destroy']);
+
+    Route::get(
+        '/admin/users',
+        [AdminController::class, 'users']
+    );
+
+    Route::post(
+        '/admin/users/{user}/promote',
+        [AdminController::class, 'makeModerator']
+    );
+
+    Route::post(
+        '/admin/users/{user}/demote',
+        [AdminController::class, 'removeModerator']
+    );
+});
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/dashboard',
+    [DashboardController::class, 'index']
+)->middleware(['auth'])->name('dashboard');
 
 require __DIR__.'/auth.php';
